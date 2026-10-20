@@ -42,15 +42,15 @@ async def durum(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def tara(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🔍 Anlık tarama başlatılıyor efendim...")
     try:
-        # Örnek haber/R10 akış kontrolü
         url = "https://news.google.com/rss"
         response = requests.get(url, timeout=10)
-        soup = BeautifulSoup(response.content, "xml")
+        # lxml hatasını önlemek için standart html.parser kullanıyoruz efendim
+        soup = BeautifulSoup(response.content, "html.parser")
         item = soup.find("item")
         
         if item:
-            title = item.title.text
-            link = item.link.text
+            title = item.title.text if item.title else "Başlık yok"
+            link = item.link.text if item.link else "Link yok"
             msg = f"🔔 **Aura Ajans Anlık Tarama Sonucu:**\n\n📌 {title}\n\n🔗 {link}"
             await update.message.reply_text(msg, parse_mode="Markdown")
         else:
@@ -60,7 +60,7 @@ async def tara(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def main():
-    # Doğru ve güncel Telegram Bot Token'ınız:
+    # Güncel ve doğru Telegram Bot Token'ınız:
     TOKEN = "8851902854:AAFygSpAFQ_4w8w2V851CDrp5A9yOvVGdJY"
 
     # Telegram Bot uygulamasını başlatıyoruz
