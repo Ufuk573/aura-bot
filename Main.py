@@ -1,9 +1,24 @@
+from flask import Flask
+import threading
 import logging
 import asyncio
 import requests
 from bs4 import BeautifulSoup
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+
+# Render'ın Web Servis Port İstediğini Karşılayan Mini Sunucu
+app_web = Flask(__name__)
+
+@app_web.route('/')
+def home():
+    return "Aura Bot Aktif ve Çalışıyor!"
+
+def run_web():
+    app_web.run(host='0.0.0.0', port=10000)
+
+# Web sunucusunu arka planda başlatıyoruz
+threading.Thread(target=run_web).daemon = True
 
 # Telegram Ayarları
 BOT_TOKEN = "8851902854:AAGsO0N2g_Jd8BIsG2d-qDThfX23jA4d9E4"
@@ -25,7 +40,6 @@ async def r10_tara():
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            # Konu başlıklarını çekme örneği
             konular = soup.find_all('a', class_='topic-title', limit=5)
             sonuc = []
             for k in konular:
